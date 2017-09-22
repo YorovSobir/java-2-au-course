@@ -66,7 +66,7 @@ public class ThreadPoolTest {
     public void testReady() {
 
         LightFuture<Integer> future = threadPool.submit(() -> {
-            final int bigNumber = 1_000_000;
+            final long bigNumber = 1_000_000_000;
             int rez = 0;
             for (int i = 0; i < bigNumber; ++i) {
                 rez += i;

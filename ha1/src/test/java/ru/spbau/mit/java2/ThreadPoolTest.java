@@ -76,7 +76,7 @@ public class ThreadPoolTest {
         Assert.assertEquals(false, future.isReady());
     }
 
-    // this strange name for method using only for follow order in which tests will execute
+    // this strange name for method using only for follow order in which tests will be execute
     @Test
     public void theLastTestShutdown() {
         threadPool.shutdown();

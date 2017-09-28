@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public final class ThreadPoolImpl implements ThreadPool {
 
-    private Queue<Runnable> taskQueue = new LinkedList<>();
+    private final Queue<Runnable> taskQueue = new LinkedList<>();
     private List<Worker> workers = new ArrayList<>();
     public ThreadPoolImpl(int noOfThreads) {
         for (int i = 0; i < noOfThreads; ++i) {
@@ -24,16 +24,22 @@ public final class ThreadPoolImpl implements ThreadPool {
 
     @Override
     public <T> LightFuture<T> submit(Supplier<T> supplier) {
+        synchronized (this) {
+            if (workers.isEmpty()) {
+                throw new RuntimeException("there are not running workers");
+            }
+        }
+
         LightFuture<T> future = new LightFuture<>(this, supplier);
         synchronized (taskQueue) {
             taskQueue.add(future);
-            taskQueue.notifyAll();
+            taskQueue.notify();
         }
         return future;
     }
 
     @Override
-    public int activeThread() {
+    public synchronized int activeThread() {
         return workers.size();
     }
 
@@ -47,6 +53,7 @@ public final class ThreadPoolImpl implements ThreadPool {
                 throw new RuntimeException("interrupted when shutdown", e);
             }
         });
+        workers.clear();
     }
 
     private final class Worker extends Thread {

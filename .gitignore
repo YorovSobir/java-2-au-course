@@ -1,5 +1,5 @@
 .gradle
-/build/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -13,3 +13,4 @@ gradle-app.setting
 # IDEA build file
 .idea
 out
+*.iml

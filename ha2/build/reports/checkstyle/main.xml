@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<checkstyle version="6.19">
-<file name="/home/yorov/spbau/secondyear/java/java-2-au-course/ha2/src/main/java/ru/spbau/mit/java2/LockFreeListImpl.java">
-</file>
-<file name="/home/yorov/spbau/secondyear/java/java-2-au-course/ha2/src/main/java/ru/spbau/mit/java2/api/LockFreeList.java">
-</file>
-</checkstyle>

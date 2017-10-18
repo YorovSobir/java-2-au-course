@@ -9,14 +9,12 @@ public class LockFreeListImpl<E> implements LockFreeList<E> {
 
     private static class Node<E> {
         private E elem;
-        private int hash;
-        private Type type;
+        private NodeType nodeType;
         private AtomicMarkableReference<Node<E>> next;
 
-        Node(E elem, int hash, Type type, Node<E> next) {
+        Node(E elem, NodeType nodeType, Node<E> next) {
             this.elem = elem;
-            this.hash = hash;
-            this.type = type;
+            this.nodeType = nodeType;
             this.next = new AtomicMarkableReference<>(next, false);
         }
     }
@@ -31,43 +29,54 @@ public class LockFreeListImpl<E> implements LockFreeList<E> {
         }
     }
 
-    private enum Type {
+    private enum NodeType {
         HEAD,
         NODE,
         TAIL
     }
 
-    private Node<E> tail;
+    private Node<E> tail = new Node<>(null, NodeType.TAIL, null);
+    private Node<E> head = new Node<>(null, NodeType.HEAD, tail);
+    private Node<E> predTail = head;
     private AtomicInteger size = new AtomicInteger(0);
 
-    public LockFreeListImpl() {
-        Node<E> head = new Node<>(null, -1, Type.HEAD, null);
-        tail = new Node<>(null, 1, Type.TAIL, head);
+    private static <E> boolean compare(Node<E> cur, Node<E> elem) {
+        if (elem.nodeType == NodeType.TAIL || elem.nodeType == NodeType.HEAD) {
+            return cur.nodeType == elem.nodeType;
+        }
+        return cur.nodeType == elem.nodeType && cur.elem == elem.elem;
     }
-
 
     @Override
     public void append(E elem) {
+        boolean[] marked = {false};
+        Node<E> newNode = new Node<>(elem, NodeType.NODE, tail);
         while (true) {
-            // I want to append element "fast", for this reason i save (traverse) list in reverse order
-            Node<E> last = tail.next.getReference();
-            Node<E> newNode = new Node<>(elem, elem.hashCode(), Type.NODE, last);
-            if (tail.next.compareAndSet(last, newNode, false, false)) {
+            Node<E> curTail = predTail.next.get(marked);
+            if (curTail != tail || marked[0]) {
+                Positions<E> tailPos = find(tail);
+                if (tailPos == null) {
+                    throw new RuntimeException("it's unreal");
+                }
+                predTail = tailPos.pred;
+            }
+            if (predTail.next.compareAndSet(tail, newNode, false, false)) {
                 size.getAndIncrement();
+                predTail = newNode;
                 break;
             }
         }
     }
 
-    private Positions<E> find(Type type, int hash) {
+    private Positions<E> find(Node<E> elem) {
         boolean[] marked = {false};
         Node<E> curr;
         Node<E> pred;
         Node<E> succ;
         boolean snip;
         while (true) {
-            pred = tail;
-            curr = tail.next.getReference();
+            pred = head;
+            curr = head.next.getReference();
             while (curr != null) {
                 succ = curr.next.get(marked);
                 while (marked[0]) {
@@ -84,7 +93,7 @@ public class LockFreeListImpl<E> implements LockFreeList<E> {
                 if (marked[0]) {
                     break;
                 }
-                if (curr.type == type && curr.hash == hash) {
+                if (compare(curr, elem)) {
                     return new Positions<>(pred, curr);
                 }
                 pred = curr;
@@ -98,8 +107,9 @@ public class LockFreeListImpl<E> implements LockFreeList<E> {
 
     @Override
     public boolean remove(E elem) {
+        Node<E> temp = new Node<>(elem, NodeType.NODE, null);
         while (true) {
-            Positions<E> pos = find(Type.NODE, elem.hashCode());
+            Positions<E> pos = find(temp);
             if (pos == null) {
                 return false;
             }
@@ -115,7 +125,7 @@ public class LockFreeListImpl<E> implements LockFreeList<E> {
 
     @Override
     public boolean contains(E elem) {
-        return find(Type.NODE, elem.hashCode()) != null;
+        return find(new Node<>(elem, NodeType.NODE, null)) != null;
     }
 
     @Override

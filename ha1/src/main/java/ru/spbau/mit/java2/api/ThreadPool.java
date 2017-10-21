@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 public interface ThreadPool {
     <T> LightFuture<T> submit(Supplier<T> supplier);
-    int activeThread();
+    boolean isShutdown();
     void shutdown();
 
 }

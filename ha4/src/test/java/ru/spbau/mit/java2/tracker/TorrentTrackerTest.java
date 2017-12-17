@@ -34,9 +34,10 @@ public class TorrentTrackerTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws InterruptedException {
         tracker = new TorrentTrackerImpl();
         new Thread(() -> tracker.start()).start();
+        Thread.sleep(10);
     }
 
     private static TorrentClient clientSetUp(int port) {
@@ -286,19 +287,20 @@ public class TorrentTrackerTest {
     }
 
     @Before
-    public void clean() {
+    public void clean() throws IOException {
         File serverData = new File(TrackerConfig.TRACKER_RESOURCES);
         File clientData = new File(ClientConfig.CLIENT_RESOURCES);
         File data = new File("./data");
-        try {
-            delete(serverData);
-            delete(clientData);
-            delete(data);
-        } catch (IOException e) {
-        }
+        removeTempDirs(serverData, clientData, data);
         data.mkdir();
         clientData.mkdir();
         serverData.mkdir();
+    }
+
+    private static void removeTempDirs(File serverData, File clientData, File data) throws IOException {
+        delete(serverData);
+        delete(clientData);
+        delete(data);
     }
 
     private static void delete(File file) throws IOException {
@@ -323,8 +325,12 @@ public class TorrentTrackerTest {
     }
 
     @AfterClass
-    public static void cleanUp() {
+    public static void cleanUp() throws IOException {
         tracker.stop();
+        File serverData = new File(TrackerConfig.TRACKER_RESOURCES);
+        File clientData = new File(ClientConfig.CLIENT_RESOURCES);
+        File data = new File("./data");
+        removeTempDirs(serverData, clientData, data);
     }
 
     private static String getNewFilePath(int fileId) {

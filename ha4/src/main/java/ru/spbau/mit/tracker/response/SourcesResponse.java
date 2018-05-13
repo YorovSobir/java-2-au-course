@@ -30,7 +30,7 @@ public class SourcesResponse implements TrackerResponse {
             ArrayList<Object> ip = (ArrayList<Object>) ((Map<String, Object>) map).get("ip");
             byte[] clientIp = new byte[ip.size()];
             for (int i = 0; i < ip.size(); i++) {
-                clientIp[i] = (byte) ip.get(i);
+                clientIp[i] = (byte) ((int)ip.get(i));
             }
             int clientPort = (int) ((Map<String, Object>) map).get("port");
             clients.add(new ClientInfo(clientIp, clientPort));

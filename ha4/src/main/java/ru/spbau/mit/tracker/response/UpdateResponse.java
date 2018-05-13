@@ -10,7 +10,11 @@ public class UpdateResponse implements TrackerResponse {
 
     public UpdateResponse(String bEncode) {
         bEncoder.setInput(bEncode);
-        status = (boolean) bEncoder.read();
+        if ((int) bEncoder.read() == 1) {
+            status = true;
+        } else {
+            status = false;
+        }
     }
 
     public UpdateResponse(boolean status) {

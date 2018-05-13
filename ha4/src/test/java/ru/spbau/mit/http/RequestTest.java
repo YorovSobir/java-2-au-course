@@ -17,7 +17,7 @@ public class RequestTest {
         final String list = "GET localhost?id=1 HTTP/1.1";
         final String sources = "GET localhost?id=3&fileID=1";
         final String upload = "GET localhost?id=2&name=hello123&size=100";
-        final String update = "GET localhost?id=4&port=5&size=1234&value0=0&value1=1&value2=2&value3=3&value4=4";
+        final String update = "GET localhost?id=4&port=1234&size=5&value0=0&value1=1&value2=2&value3=3&value4=4";
         Assert.assertTrue(Request.parse(list) instanceof ListRequest);
         TrackerRequest request = Request.parse(sources);
         Assert.assertTrue(request instanceof SourcesRequest);

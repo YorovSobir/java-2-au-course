@@ -4,10 +4,7 @@ import ru.spbau.mit.http.Request;
 import ru.spbau.mit.http.Response;
 import ru.spbau.mit.tracker.request.ListRequest;
 import ru.spbau.mit.tracker.request.TrackerRequest;
-import ru.spbau.mit.tracker.response.ListResponse;
-import ru.spbau.mit.tracker.response.SourcesResponse;
-import ru.spbau.mit.tracker.response.TrackerResponse;
-import ru.spbau.mit.tracker.response.UploadResponse;
+import ru.spbau.mit.tracker.response.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -110,7 +107,7 @@ public final class Codec {
                 case 1: return new ListResponse(Response.parse(dis.readUTF()).getData());
                 case 2: return new UploadResponse(Response.parse(dis.readUTF()).getData());
                 case 3: return new SourcesResponse(Response.parse(dis.readUTF()).getData());
-                case 4: return new UploadResponse(Response.parse(dis.readUTF()).getData());
+                case 4: return new UpdateResponse(Response.parse(dis.readUTF()).getData());
             }
         } catch (IOException e) {
             throw new IllegalStateException(e);

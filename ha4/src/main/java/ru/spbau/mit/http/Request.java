@@ -73,7 +73,7 @@ public final class Request {
 
     private static UpdateRequest updateRequest(Map<String, String> keys) {
         int port = Integer.valueOf(keys.get("port"));
-        int size = Integer.valueOf(keys.get("size"));
+        int size = Integer.valueOf(keys.get("count"));
         List<Integer> filesID = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             filesID.add(Integer.valueOf(keys.get("value" + String.valueOf(i))));
